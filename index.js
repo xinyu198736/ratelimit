@@ -51,7 +51,7 @@ function ratelimit (opts = {}) {
     if(opts.duration && typeof(opts.duration) === 'function') {
       duration = await opts.duration(ctx);
     }
-    
+
     // initialize limiter
     const limiter = new Limiter(Object.assign({}, opts, { id,max,duration }));
 

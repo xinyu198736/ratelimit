@@ -61,11 +61,11 @@ console.log('listening on port 3000');
 ## Options
 
  - `db` redis connection instance
- - `duration` of limit in milliseconds [3600000]
+ - `duration` of limit in milliseconds [3600000] or use async function that can define by user's info
  - `errorMessage` custom error message
  - `id` id to compare requests [ip]
  - `headers` custom header names
- - `max` max requests within `duration` [2500]
+ - `max` max requests within `duration` [2500] or use async function that can define by user's info
  - `disableHeader` set whether send the `remaining, reset, total` headers [false]
   - `remaining` remaining number of requests [`'X-RateLimit-Remaining'`]
   - `reset` reset timestamp [`'X-RateLimit-Reset'`]
