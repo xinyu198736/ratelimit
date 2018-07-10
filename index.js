@@ -1,4 +1,3 @@
-
 /**
  * Module dependencies.
  */
@@ -30,20 +29,31 @@ module.exports = ratelimit;
  * @api public
  */
 
-function ratelimit(opts = {}) {
+function ratelimit (opts = {}) {
   const {
     remaining = 'X-RateLimit-Remaining',
     reset = 'X-RateLimit-Reset',
     total = 'X-RateLimit-Limit'
   } = opts.headers || {}
 
-  return async function ratelimit(ctx, next) {
+  return async function ratelimit (ctx, next) {
     const id = opts.id ? opts.id(ctx) : ctx.ip;
+    let max = undefined;
+    let duration = undefined;
+    if(false === id) return await next();
 
-    if (false === id) return await next();
+    // dynamic max
+    if(opts.max && typeof(opts.max) === 'function') {
+      max = await opts.max(ctx);
+    }
 
+    // dynamic duration
+    if(opts.duration && typeof(opts.duration) === 'function') {
+      duration = await opts.duration(ctx);
+    }
+    console.log(opts)
     // initialize limiter
-    const limiter = new Limiter(Object.assign({}, opts, { id }));
+    const limiter = new Limiter(Object.assign({}, opts, { id,max,duration }));
 
     // check limit
     const limit = await thenify(limiter.get.bind(limiter));
@@ -55,7 +65,7 @@ function ratelimit(opts = {}) {
     const disableHeader = opts.disableHeader || false;
 
     let headers = {};
-    if (!disableHeader) {
+    if(!disableHeader) {
       // header fields
       headers = {
         [remaining]: calls,
@@ -67,7 +77,7 @@ function ratelimit(opts = {}) {
     }
 
     debug('remaining %s/%s %s', remaining, limit.total, id);
-    if (limit.remaining) return await next();
+    if(limit.remaining) return await next();
 
     const delta = (limit.reset * 1000) - Date.now() | 0;
     const after = limit.reset - (Date.now() / 1000) | 0;
@@ -76,7 +86,7 @@ function ratelimit(opts = {}) {
     ctx.status = 429;
     ctx.body = opts.errorMessage || `Rate limit exceeded, retry in ${ms(delta, { long: true })}.`;
 
-    if (opts.throw) {
+    if(opts.throw) {
       ctx.throw(ctx.status, ctx.body, { headers });
     }
   }
@@ -86,10 +96,10 @@ function ratelimit(opts = {}) {
  * Helper function to convert a callback to a Promise.
  */
 
-async function thenify(fn) {
-  return await new Promise(function(resolve, reject) {
-    function callback(err, res) {
-      if (err) return reject(err);
+async function thenify (fn) {
+  return await new Promise(function (resolve, reject) {
+    function callback (err, res) {
+      if(err) return reject(err);
       return resolve(res);
     }
 

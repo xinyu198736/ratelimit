@@ -9,7 +9,10 @@ const app = new Koa();
 app.use(ratelimit({
   db: new Redis(),
   duration: 60000,
-  max: 10
+  max: async (ctx) => {
+
+    return Math.round(Math.random()*100)
+  }
 }));
 
 // response middleware

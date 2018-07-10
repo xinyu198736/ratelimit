@@ -1,8 +1,8 @@
 {
-  "name": "koa-ratelimit",
+  "name": "koa-ratelimit-dynamic",
   "description": "Rate limiter middleware for koa",
   "repository": "koajs/ratelimit",
-  "version": "4.1.2",
+  "version": "0.0.1",
   "keywords": [
     "koa",
     "middleware",

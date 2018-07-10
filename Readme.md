@@ -1,5 +1,7 @@
 
-# koa-ratelimit
+# koa-ratelimit-dynamic
+
+koa-ratelimit 的扩展，可以根据用户的信息，动态调整 max 和 duration 参数。
 
 [![NPM version][npm-image]][npm-url]
 [![build status][travis-image]][travis-url]
@@ -17,14 +19,14 @@
 ## Installation
 
 ```js
-$ npm install koa-ratelimit
+$ npm install koa-ratelimit-dynamic
 ```
 
 ## Example
 
 ```js
 const Koa = require('koa');
-const ratelimit = require('koa-ratelimit');
+const ratelimit = require('koa-ratelimit-dynamic');
 const Redis = require('ioredis');
 const app = new Koa();
 
@@ -33,6 +35,7 @@ const app = new Koa();
 app.use(ratelimit({
   db: new Redis(),
   duration: 60000,
+  // duration: async (ctx)=>{ return 1000; }
   errorMessage: 'Sometimes You Just Have to Slow Down.',
   id: (ctx) => ctx.ip,
   headers: {
@@ -41,6 +44,7 @@ app.use(ratelimit({
     total: 'Rate-Limit-Total'
   },
   max: 100,
+  // max: async (ctx)=>{ return 100; }
   disableHeader: false,
 }));
 
